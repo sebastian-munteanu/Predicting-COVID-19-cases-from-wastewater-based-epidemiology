@@ -6,3 +6,7 @@ output/_to_delete/
 __pycache__/
 *.pyc
 .gitlocks_stale/
+
+.Rhistory
+.RData
+.Rproj.user/

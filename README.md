@@ -1,60 +1,42 @@
-# Predicting COVID-19 cases from wastewater
+# Predicting COVID-19 cases from wastewater-based epidemiology
 
-MSc dissertation code · Sebastian Munteanu · Department of Mathematical Sciences, University of Bath
+This repository provides the code and data supporting an MSc dissertation, Department of Mathematical Sciences, University of Bath, 2026. Supervisor: Julian Faraway.
 
-## What this is
+## Summary
 
-Four notebooks that link England's 2021 wastewater surveillance data to reported COVID-19 case counts, and then test how well the wastewater signal predicts cases. Study period 1 June – 20 September 2021, covering 269 treatment works and 307 local authorities.
+Reported COVID-19 case counts depend on testing behaviour and reporting practice; SARS-CoV-2 RNA in wastewater does not. This project asks how well the wastewater signal predicts recorded cases at local authority level, and whether machine learning does so better than linear regression. Wastewater is measured at treatment works and cases are reported by local authority, two geographies that do not align, so a population-weighted bridge between them is built and validated first. The resulting panel covers 307 authorities over 112 days, 1 June to 20 September 2021.
 
-## Getting the data
+The concentration–incidence relationship is sub-proportional, with an elasticity of 0.36: ten times more RNA corresponds to roughly 2.3 times more cases. Forecast accuracy depends on the horizon — against a persistence benchmark the linear model is worse at one week and 14% better at four, while a tuned gradient-boosted ensemble beats the benchmark throughout. Authority characteristics account for 56–58% of accuracy. A control substituting an unrelated smooth series forecasts comparably, so part of the gain reflects a national trend rather than a local signal.
 
-The `data/` folder is **not included in this repository** — the input files total about 370 MB and every one of them is public. `data/SOURCES.md` lists each file, what it provides, and where to download it, including the traps worth knowing about (the wastewater sheet is missing one date column, the three case files use two different date formats, and the area file is Latin-1 encoded).
+## Data
 
-Download them into `data/` using the names given in `SOURCES.md` and the notebooks will find them. Everything in `output/` is committed, so the results can be inspected without re-running anything.
+All files are public and included in [`data/`](data/).
+
+* Wastewater RNA concentrations, 269 treatment works: [`Final_EMHP_concentration_October_2021_data.ods`](data/Final_EMHP_concentration_October_2021_data.ods), from the [EMHP programme](https://www.gov.uk/government/publications/monitoring-of-sars-cov-2-rna-in-england-wastewater-monthly-statistics-1-june-to-20-september-2021)
+* Cases and vaccination uptake by authority: [five CSVs](data/) from the [UKHSA dashboard archive](https://ukhsa-dashboard.data.gov.uk/covid-19-archive-data-download)
+* Catchment geography: [`lsoa_catchment_lookup.csv`](data/lsoa_catchment_lookup.csv) and [`waterbase_catchment_lookup.csv`](data/waterbase_catchment_lookup.csv), from [Hoffmann et al.](https://github.com/tillahoffmann/wastewater-catchment-areas)
+* Boundary lookups: [2021 vintage](data/LSOA11_WD21_LAD21_EW_LU_V2.xlsx) from the [ONS Open Geography Portal](https://open-geography-portalx-ons.hub.arcgis.com/documents/ff21f0cfbdcc4206906920b3a8858867), [2011 vintage](data/Output_Area_to_Lower_layer_Super_Output_Area_to_Middle_layer_Super_Output_Area_to_Local_Authority_District_%28December_2011%29_Lookup_in_England_and_Wales.csv) from [data.gov.uk](https://ckan.publishing.service.gov.uk/dataset/output-area-2011-to-lsoa-to-msoa-to-lad-december-2011-exact-fit-lookup-in-ew)
+* Population by LSOA and age: [`SAPE22DT2-mid-2019...xlsx`](data/SAPE22DT2-mid-2019-lsoa-syoa-estimates-unformatted.xlsx), from [ONS](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/lowersuperoutputareamidyearpopulationestimates)
+* Land area by LSOA: [`SAM_LSOA_DEC_2011_EW.csv`](data/SAM_for_2011_Census_Areas/SAM_LSOA_DEC_2011_EW.csv), from [ONS](https://geoportal.statistics.gov.uk/datasets/c842615ec98b44209b655dd74a19dbdd)
+* Deprivation: [`File_7_-_All_IoD2019_Scores...csv`](data/File_7_-_All_IoD2019_Scores__Ranks__Deciles_and_Population_Denominators_3.csv), from the [Indices of Deprivation 2019](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019)
+
+Full provenance is in [`data/SOURCES.md`](data/SOURCES.md).
+
+## Code
+
+Four notebooks in [`notebooks/`](notebooks/), run in order.
+
+* [`01_build_and_validate_bridge.ipynb`](notebooks/01_build_and_validate_bridge.ipynb) — links treatment works to 2021 local authorities by shared population, and validates the result against the monitoring programme's own catchment figures
+* [`02_build_combined_dataset.ipynb`](notebooks/02_build_combined_dataset.ipynb) — applies the bridge to build the analysis panel, and checks four values by hand against the raw files
+* [`03_ltla_covariates.ipynb`](notebooks/03_ltla_covariates.ipynb) — aggregates age structure, density, deprivation and vaccination uptake onto 2021 authorities
+* [`04_models.ipynb`](notebooks/04_models.ipynb) — fits the linear model and the gradient-boosted ensemble, and evaluates both by rolling-origin forecasting
+
+Everything they produce is committed to [`output/`](output/), so the results can be read without running anything.
 
 ## Running it
 
-Python 3.11 with `pandas`, `numpy`, `matplotlib`, `statsmodels`, `scikit-learn`, `xgboost` and `odfpy`.
-
-Open the notebooks from inside the `notebooks/` folder and run them in order, 01 → 04. Each finds `data/` and `output/` relative to its own location, so the project folder can be moved or renamed without editing anything. Notebook 04 takes a few minutes; the others are quick.
-
 ```
-wbe_analysis/
-├── data/         all input files, plus SOURCES.md describing where each came from
-├── notebooks/    01–04, run in this order
-└── output/       everything the notebooks produce
+pip install -r requirements.txt
 ```
 
-## The notebooks
-
-**01 — Linking treatment works to local authorities.** Wastewater is measured at treatment works, cases are reported by local authority, and the two geographies do not align. This builds the population-weighted link between them and validates it against the monitoring programme's own independently calculated catchment populations.
-
-Writes `stw_ltla_bridge.csv`, `population_validation.csv`, `lad11_to_lad21.csv`.
-
-**02 — Building the combined dataset.** Joins wastewater readings to case counts to produce the analysis panel, one row per authority per day. Four values are recomputed by hand from the raw files as a check on the pipeline.
-
-Writes `rna_cases_panel.csv`, `ltla_population.csv`.
-
-**03 — Local authority characteristics.** Age structure, population density, deprivation and vaccination uptake for each authority.
-
-Writes `ltla_covariates.csv`, `ltla_vaccination.csv`.
-
-**04 — Forecasting cases from wastewater.** Builds the predictor, justifies the specification on validation forecast origins, and reports forecast error against horizon for a linear model and for XGBoost.
-
-Writes `horizon_results.csv`, `contemporaneous_model.csv`, `lag_profile.csv`.
-
-## What the analysis finds
-
-The wastewater signal is real: the contemporaneous elasticity of cases with respect to concentration is 0.36, so a tenfold rise in concentration goes with a 2.3-fold rise in recorded cases. This reproduces at local authority resolution the sub-proportional relationship reported elsewhere.
-
-The forecast horizon determines the answer, for the linear model. At one week, simply reusing the last known case count beats it comfortably. The persistence benchmark degrades as the horizon lengthens while the linear model's error stays nearly flat, and the two cross between three and three and a half weeks. At four weeks the linear model is 14% ahead, using no case data at all.
-
-Authority characteristics carry more than half the accuracy. Adding them to a wastewater-only model reduces its error by 56–58%; neither block works without the other.
-
-Two controls qualify this. Where recent case counts are already available, adding wastewater does not reliably improve the forecast. And vaccination uptake — an unrelated measurement that happens to move smoothly over the same window — forecasts about as well as wastewater does, which means part of the apparent gain is trend-following rather than a local signal. Separating the two would need a study period spanning several waves.
-
-XGBoost, with hyperparameters selected on the validation origins, beats the linear model by 37–43% at every horizon. It also beats the persistence benchmark everywhere — by 17% at one week rising to 48% at four — so the crossing point above is a property of the linear specification rather than of wastewater itself. The linear model's coefficients are still what gets reported, because the elasticity can be compared with the literature and interpreted; the ensemble measures how much the additive form leaves behind, and that gap is the substantive answer to the machine-learning-versus-regression question.
-
-## Known limitations
-
-A single epidemic wave. Eight test forecast origins, with error varying by about 0.01 between origins. Two catchments, Radlett and Plympton, disagree with the programme's own population figures and are still included. Standard errors are now cluster-robust, so the elasticity interval is quotable; the two-way estimator is approximate with only 112 days, so treat the widest interval as indicative.
+Then run the notebooks in order. Each finds `data/` and `output/` relative to its own location, so no paths need editing. Notebook 04 takes about fifteen minutes; the rest are quick.

@@ -12,7 +12,7 @@ The sheet used is `Daily_concentrations`: 269 sewage treatment works, one column
 per day from 2021-06-01 to 2021-09-20. Note there are 111 date columns, not 112 —
 2021-07-17 is absent from the file.
 
-## COVID-19 cases and vaccination
+## COVID-19 cases
 
 All from the UKHSA COVID-19 dashboard archive:
 https://ukhsa-dashboard.data.gov.uk/covid-19-archive-data-download
@@ -20,9 +20,6 @@ https://ukhsa-dashboard.data.gov.uk/covid-19-archive-data-download
 - `ltla_newCasesBySpecimenDate.csv`            (from cases.zip)
 - `ltla_newCasesBySpecimenDateRollingSum.csv`  (from cases.zip)
 - `ltla_newCasesBySpecimenDateRollingRate.csv` (from cases.zip)
-- `Vaccinations/ltla_cumVaccinationFirstDoseUptakeByVaccinationDatePercentage.csv`
-- `Vaccinations/ltla_cumVaccinationSecondDoseUptakeByVaccinationDatePercentage.csv`
-  (both from vaccinations.zip)
 
 Watch the date formats: `newCasesBySpecimenDate` and `RollingRate` are DD/MM/YYYY,
 `RollingSum` is YYYY-MM-DD. The notebooks parse each with an explicit format

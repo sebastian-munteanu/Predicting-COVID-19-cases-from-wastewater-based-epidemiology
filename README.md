@@ -1,7 +1,5 @@
 # Predicting COVID-19 cases from wastewater-based epidemiology
 
-This repository provides the code and data supporting an MSc dissertation, Department of Mathematical Sciences, University of Bath, 2026. Supervisor: Julian Faraway.
-
 ## Summary
 
 Reported COVID-19 case counts measure testing behaviour as much as infection, since a case exists only where somebody sought a test, obtained one, and had the result recorded. Concentrations of SARS-CoV-2 RNA in wastewater are not subject to that selection, which is why national monitoring programmes were established during the pandemic. This study evaluates how accurately wastewater concentrations predict reported case counts at local authority level in England, and whether a machine learning method outperforms linear regression given the same inputs.

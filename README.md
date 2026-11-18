@@ -2,6 +2,8 @@
 
 ## Summary
 
+MSc Statistics and Data Science dissertation.
+
 Reported COVID-19 case counts measure testing behaviour as much as infection, since a case exists only where somebody sought a test, obtained one, and had the result recorded. Concentrations of SARS-CoV-2 RNA in wastewater are not subject to that selection, which is why national monitoring programmes were established during the pandemic. This study evaluates how accurately wastewater concentrations predict reported case counts at local authority level in England, and whether a machine learning method outperforms linear regression given the same inputs.
 
 Wastewater is sampled at treatment works, whose catchments follow the sewer network, while cases are reported by local authority, whose boundaries are administrative. The two do not line up, so a population-weighted link between them is built from small-area census units and checked against catchment populations the monitoring programme calculated separately, which it matches to within 0.3%. The panel covers 307 local authorities over 112 days, from 1 June to 20 September 2021.
